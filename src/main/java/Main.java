@@ -2,6 +2,7 @@ import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
+
 public class Main {
 
     public Main(){
@@ -10,4 +11,8 @@ public class Main {
         Workspace workspace = projectController.getCurrentWorkspace();
     }
 
+
+
+    public static void main(String[] args) {
+    }
 }
