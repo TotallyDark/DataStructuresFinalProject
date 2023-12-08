@@ -1,5 +1,6 @@
 import com.lukaspradel.steamapi.core.exception.SteamApiException;
 import com.lukaspradel.steamapi.data.json.appnews.GetNewsForApp;
+import com.lukaspradel.steamapi.data.json.dota2.proplayerlist.PlayerInfo;
 import com.lukaspradel.steamapi.data.json.friendslist.Friendslist;
 import com.lukaspradel.steamapi.data.json.friendslist.GetFriendList;
 import com.lukaspradel.steamapi.data.json.playersummaries.GetPlayerSummaries;
