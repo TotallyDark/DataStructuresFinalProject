@@ -1,11 +1,19 @@
+import com.lukaspradel.steamapi.data.json.playersummaries.GetPlayerSummaries;
+import com.lukaspradel.steamapi.webapi.client.SteamWebApiClient;
+import com.lukaspradel.steamapi.webapi.request.SteamWebApiRequest;
+import com.lukaspradel.steamapi.webapi.request.builders.SteamWebApiRequestFactory;
+
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 public class Main {
-    private HashMap<String, Node> nodes;
+    private final HashMap<String, Node> nodes;
 
-    public Main() {
-        this.nodes = new HashMap<>();
+    public Main(HashMap<String, Node> discovered) {
+        this.nodes = discovered;
     }
 
     //Creates a node and adds it to the graph
@@ -15,48 +23,62 @@ public class Main {
 
     //Adds a connecting edge between 2 nodes
 
-    public boolean hasEdge(String label1, String label2) {
-        LinkedList<Node> neighbours = nodes.get(label1).neighbours;
-        for (int i = 0; i < neighbours.size(); i++) {
-            if (nodes.get(label1).neighbours.get(i).id.equals(label2)) {
+    public boolean hasEdge(Node n1, Node n2) {
+        for (int i = 0; i < n1.neighbours.size(); i++) {
+            if (n1.neighbours.get(i).equals(n2.id)) {
                 return true;
             }
-            if (nodes.get(label2).neighbours.get(i).id.equals(label1)) {
+            if (n2.neighbours.get(i).equals(n1.id)) {
                 return true;
             }
         }
         return false;
     }
 
-    public void addEdge(String label1, String label2) {
-        nodes.get(label1).neighbours.add(nodes.get(label2));
-        nodes.get(label2).neighbours.add(nodes.get(label1));
+    public void addEdge(Node n1, Node n2) {
+        n1.neighbours.add(n2.id);
+        n2.neighbours.add(n1.id);
     }
 
-    public void removeVertex(String label) {
-        for (int i = 0; i < nodes.get(label).neighbours.size(); i++) {
-            removeEdge(label, nodes.get(label).neighbours.get(i).id);
+    public void removeVertex(Node n1) {
+        for (int i = 0; i < n1.neighbours.size(); i++) {
+            removeEdge(n1, nodes.get(n1.neighbours.get(i)));
         }
-        nodes.remove(label);
+        nodes.remove(n1.id);
     }
 
     // Removes the edge between the given vertices
-    public void removeEdge(String label1, String label2) {
-        for (int i = 0; i < nodes.get(label1).neighbours.size(); i++) {
-            if (nodes.get(label1).neighbours.get(i).id.equals(label2)) {
-                nodes.get(label1).neighbours.remove(i);
+    public void removeEdge(Node n1, Node n2) {
+        for (int i = 0; i < n1.neighbours.size(); i++) {
+            if (n1.neighbours.get(i).equals(n2.id)) {
+                n1.neighbours.remove(i);
                 break;
             }
         }
-        for (int i = 0; i < nodes.get(label2).neighbours.size(); i++) {
-            if (nodes.get(label2).neighbours.get(i).id.equals(label1)) {
-                nodes.get(label2).neighbours.remove(i);
+        for (int i = 0; i < n2.neighbours.size(); i++) {
+            if (n2.neighbours.get(i).equals(n1.id)) {
+                n2.neighbours.remove(i);
                 break;
             }
+        }
+    }
+
+    public static void main(String[] args) {
+        SteamWebApiClient client = new SteamWebApiClient.SteamWebApiClientBuilder("4537CB87C29E45B6A1C4B4C1A76A1076").build();
+        try {
+            FileInputStream fis = new FileInputStream("Node.ser");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Node n = (Node)(ois.readObject());
+            for(String s:n.neighbours) {
+                SteamWebApiRequest friendSummary = SteamWebApiRequestFactory.createGetPlayerSummariesRequest(List.of(s));
+                GetPlayerSummaries player = client.processRequest(friendSummary);
+                String name = player.getResponse().getPlayers().get(0).getPersonaname();
+                System.out.println(name);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
 
-//        ProjectController projectController = Lookup.getDefault().lookup(ProjectController.class);
-//        projectController.newProject();
-//        Workspace workspace = projectController.getCurrentWorkspace();
+
     }
 }
