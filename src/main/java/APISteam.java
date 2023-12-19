@@ -21,7 +21,7 @@ public class APISteam {
 
             for(int i =0; request.getFriendslist().getFriends().size() > i;i++) {
                 playerSummaries = SteamWebApiRequestFactory.createGetPlayerSummariesRequest(List.of(request.getFriendslist().getFriends().get(i).getSteamid()));
-                run =  client.processRequest(playerSummaries);
+                run = client.processRequest(playerSummaries);
                 System.out.println(request.getFriendslist(). getFriends().get(i).getSteamid() + ", " + run.getResponse().getPlayers().get(0).getPersonaname());
             }
 
